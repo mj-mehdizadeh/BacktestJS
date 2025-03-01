@@ -36,7 +36,7 @@ async function startServer(url: string) {
     // Find users OS type
     if (osPlatform === 'win32') command = `start microsoft-edge:${url}`
     else if (osPlatform === 'darwin') command = `open -a "Google Chrome" ${url}`
-    else command = `google-chrome --no-sandbox ${url}`
+    else command = `brave-browser --no-sandbox ${url}`
 
     // Open browser
     exec(command)
