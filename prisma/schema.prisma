@@ -11,80 +11,103 @@ datasource db {
 }
 
 model MetaCandle {
-    id                Int             @id @default(autoincrement())
-    name              String          @unique
-    symbol            String
-    interval          String
-    base              String
-    quote             String
-    startTime         BigInt
-    endTime           BigInt
-    importedFromCSV   Boolean
-    creationTime      BigInt
-    lastUpdatedTime   BigInt
-    candles           Candle[]
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  symbol          String
+  interval        String
+  base            String
+  quote           String
+  startTime       BigInt
+  endTime         BigInt
+  importedFromCSV Boolean
+  creationTime    BigInt
+  lastUpdatedTime BigInt
+  candles         Candle[]
+  Trends          Trends[]
 }
 
 model Candle {
-    id              Int       @id @default(autoincrement())
-    openTime        BigInt
-    open            Float
-    high            Float
-    low             Float
-    close           Float
-    volume          Float
-    closeTime       BigInt
-    assetVolume     Float
-    numberOfTrades  Int
-    metaCandleId    Int
-    metaCandle      MetaCandle @relation(fields: [metaCandleId], references: [id])
+  id             Int        @id @default(autoincrement())
+  openTime       BigInt
+  open           Float
+  high           Float
+  low            Float
+  close          Float
+  volume         Float
+  closeTime      BigInt
+  assetVolume    Float
+  numberOfTrades Int
+  metaCandleId   Int
+  metaCandle     MetaCandle @relation(fields: [metaCandleId], references: [id])
+  trendId        Int?
+  trend          Trends?    @relation(fields: [trendId], references: [id])
+}
+
+model Trends {
+  id           Int            @id @default(autoincrement())
+  metaCandleId Int // کلید خارجی به MetaCandle
+  metaCandle   MetaCandle     @relation(fields: [metaCandleId], references: [id])
+  startTime    BigInt // زمان شروع ترند (مطابق با اولین کندل)
+  endTime      BigInt // زمان پایان ترند (مطابق با آخرین کندل)
+  candles      Candle[] // کندل‌های مرتبط با این ترند
+  totalVolume  Float? // حجم کل (محاسبه‌شده از کندل‌ها، اختیاری)
+  label        String? // لیبل اصلی ترند (مثل Bullish, Bearish, Range)
+  features     TrendFeature[] // جدول جداگانه برای ویژگی‌های اضافی (انعطاف‌پذیر)
+}
+
+model TrendFeature {
+  id           Int    @id @default(autoincrement())
+  trendId      Int // کلید خارجی به Trends
+  trend        Trends @relation(fields: [trendId], references: [id])
+  featureName  String // نام ویژگی (مثل RSI, MACD, ATR)
+  featureValue String // مقدار ویژگی (به صورت رشته برای انعطاف‌پذیری)
 }
 
 model Strategy {
-    id                   Int    @id @default(autoincrement())
-    name                 String @unique
-    params               String
-    dynamicParams        Boolean
-    creationTime         BigInt
-    lastRunTime          BigInt
+  id            Int     @id @default(autoincrement())
+  name          String  @unique
+  params        String
+  dynamicParams Boolean
+  creationTime  BigInt
+  lastRunTime   BigInt
 }
 
 model StrategyResult {
-  id                  Int             @id @default(autoincrement())
-  name                String          @unique
-  historicalDataName  String
-  strategyName        String
-  params              String
-  startTime           BigInt
-  endTime             BigInt
-  txFee               Int
-  slippage            Int
-  startingAmount      Float
-  allOrders           Order[]
-  allWorths           Worth[]
-  runMetaData         RunMetaData?    
-  runMetaDataId       Int?            @unique
+  id                 Int          @id @default(autoincrement())
+  name               String       @unique
+  historicalDataName String
+  strategyName       String
+  params             String
+  startTime          BigInt
+  endTime            BigInt
+  txFee              Int
+  slippage           Int
+  startingAmount     Float
+  allOrders          Order[]
+  allWorths          Worth[]
+  runMetaData        RunMetaData?
+  runMetaDataId      Int?         @unique
 }
 
 model StrategyResultMulti {
-  id                  Int              @id @default(autoincrement())
-  name                String           @unique
-  strategyName        String
-  symbols             String
-  permutationCount    Int
-  params              String           
-  startTime           BigInt
-  endTime             BigInt
-  txFee               Int
-  slippage            Int
-  startingAmount      Float
-  multiResults        String         
-  isMultiValue        Boolean
-  isMultiSymbol       Boolean        
+  id               Int     @id @default(autoincrement())
+  name             String  @unique
+  strategyName     String
+  symbols          String
+  permutationCount Int
+  params           String
+  startTime        BigInt
+  endTime          BigInt
+  txFee            Int
+  slippage         Int
+  startingAmount   Float
+  multiResults     String
+  isMultiValue     Boolean
+  isMultiSymbol    Boolean
 }
 
 model RunMetaData {
-  id                      Int              @id @default(autoincrement())
+  id                      Int            @id @default(autoincrement())
   highestAmount           Float
   highestAmountDate       BigInt
   lowestAmount            Float
@@ -104,34 +127,34 @@ model RunMetaData {
   numberOfCandles         Int
   numberOfCandlesInvested Int
   sharpeRatio             Int
-  StrategyResult          StrategyResult  @relation(fields: [StrategyResultId], references: [id])
-  StrategyResultId        Int             @unique
+  StrategyResult          StrategyResult @relation(fields: [StrategyResultId], references: [id])
+  StrategyResultId        Int            @unique
 }
 
 model Order {
-  id                  Int             @id @default(autoincrement())
-  type                String
-  position            String
-  price               Float
-  amount              Float
-  worth               Float
-  quoteAmount         Float
-  baseAmount          Float
-  borrowedBaseAmount  Float
-  profitAmount        Float
-  profitPercent       Float
-  time                BigInt
-  StrategyResultId    Int
-  StrategyResult      StrategyResult  @relation(fields: [StrategyResultId], references: [id], onDelete: Cascade)
+  id                 Int            @id @default(autoincrement())
+  type               String
+  position           String
+  price              Float
+  amount             Float
+  worth              Float
+  quoteAmount        Float
+  baseAmount         Float
+  borrowedBaseAmount Float
+  profitAmount       Float
+  profitPercent      Float
+  time               BigInt
+  StrategyResultId   Int
+  StrategyResult     StrategyResult @relation(fields: [StrategyResultId], references: [id], onDelete: Cascade)
 }
 
 model Worth {
-  id                  Int             @id @default(autoincrement())
-  close               Float
-  high                Float
-  low                 Float
-  open                Float
-  time                BigInt
-  StrategyResultId    Int
-  StrategyResult      StrategyResult  @relation(fields: [StrategyResultId], references: [id], onDelete: Cascade)
+  id               Int            @id @default(autoincrement())
+  close            Float
+  high             Float
+  low              Float
+  open             Float
+  time             BigInt
+  StrategyResultId Int
+  StrategyResult   StrategyResult @relation(fields: [StrategyResultId], references: [id], onDelete: Cascade)
 }
