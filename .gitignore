@@ -17,3 +17,4 @@ candleName.json
 backtestJS.db
 candles.json
 .DS_Store
+.idea
