@@ -1,16 +1,12 @@
 import {Candle} from "../infra/interfaces";
 import { Trend, Dir } from "../infra/trends";
 
-
-const MIN_TREND_SIZE = 3.8; // Example threshold
-
-
 export class ZigZag {
 
     public activeTrend: Trend | null = null;
     public trends: Trend[] = [];
 
-    constructor(candles: Candle[]) {
+    constructor(candles: Candle[], public readonly MIN_TREND_SIZE: number) {
         for (let i = 1; i < candles.length; i++) {
 
             const candle = candles[i];
@@ -55,7 +51,7 @@ export class ZigZag {
     }
 
     isSignificant(trend: Trend): boolean {
-        return trend.height >= MIN_TREND_SIZE;
+        return trend.height >= this.MIN_TREND_SIZE;
     }
 }
 
