@@ -18,6 +18,7 @@ import { headerMain } from './infra/headers'
 import { mainHistoricalDataPortal } from './portals/historical-data/main'
 import { mainStrategyPortal } from './portals/strategies/main'
 import { viewResultsPortal } from './portals/results/view-results'
+import {candlesHeightSma, dayliZigZag} from "./strategies/tests";
 
 // ---------------------------------------------------- 
 // |                   FUNCTIONS                      |
@@ -33,10 +34,12 @@ async function main() {
 
     // Define choices for main screen
     const choices = [
+        'sortHills',
         '📚 Historical Candle Data',
         '💎 Trading Strategies',
         '📜 View Saved Trading Results',
-        '👈 Exit'
+        '👈 Exit',
+        'test'
     ]
 
     while (!exit) {
@@ -62,9 +65,11 @@ async function main() {
             portalReturn.error = false
             portalReturn.data = ''
         }
+        else if (responseCLI === 'test') await dayliZigZag()
+        else if (responseCLI === 'sortHills') await candlesHeightSma()
 
         // Clear console
-        console.clear()
+        // console.clear()
     }
 }
 

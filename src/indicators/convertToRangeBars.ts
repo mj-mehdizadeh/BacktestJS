@@ -1,5 +1,5 @@
 import {Candle} from "../infra/interfaces";
-import {percentage} from "../strategies/tests";
+import { percentage } from "../helpers/percentage";
 
 export function convertToRangeBars(ohlcvData: Candle[], rangeSize: number) {
     const rangeBars = [];
